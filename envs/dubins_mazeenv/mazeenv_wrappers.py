@@ -2,13 +2,12 @@ import sys
 import os
 sys.path.append(os.getcwd())
 #from gym_marblemaze.envs.mazeenv.maze.maze import Maze
-from gym_marblemaze.envs.dubins_mazeenv.mazeenv import *
+from .mazeenv import *
 # from gym_marblemaze.envs.mazeenv.mazeenv import *
 #from maze.maze import Maze
 from matplotlib import collections  as mc
 from matplotlib.patches import Circle
 import gym
-import gym_marblemaze
 from gym import error, spaces
 from gym.utils import seeding
 import numpy as np
@@ -18,11 +17,13 @@ import copy
 from collections import OrderedDict
 import torch
 
+from gym.envs.registration import register
 
-print("REGISTERING DubinMazeEnv_AE-v0")
+
+print("REGISTERING DubinsMazeEnv_AE-v0")
 register(
     id='DubinsMazeEnv_AE-v0',
-    entry_point='gym_marblemaze.envs:DuinsMazeEnv_AE',
+    entry_point='envs:DubinsMazeEnv_AE',
     kwargs={'args': {
             'mazesize':5,
             'random_seed':0,
@@ -30,6 +31,7 @@ register(
             'wallthickness':0.1,
             'wallskill':True,
             'targetkills':True,
+            'min_steps':25,
             'max_steps':50
         }}
 )
@@ -44,15 +46,16 @@ class DubinsMazeEnv_AE(DubinsMazeEnv):
             'wallthickness':0.1,
             'wallskill':True,
             'targetkills':True,
+            'min_steps':25,
             'max_steps': 50
         }):
 
         #MazeEnv.__init__(self, args = args)
-        super(DubinsMazeEnv_BP_SB3,self).__init__(args = args)
+        super(DubinsMazeEnv_AE,self).__init__(args = args)
 
         print("MazeEnv.state = ", self.state)
 
-        self.max_steps = args['max_steps']
+        self.max_steps = np.random.randint(args['min_steps'],args['max_steps'])
         # Counter of steps per episode
         self.args = args
         self.rollout_steps = 0
@@ -64,8 +67,6 @@ class DubinsMazeEnv_AE(DubinsMazeEnv):
 
         # Counter of steps per episode
         self.rollout_steps = 0
-        self.demo_traj = demo_traj
-        self.starting_indx = 0
         self.width = 0.5
         self.traj = []
 
@@ -106,7 +107,7 @@ class DubinsMazeEnv_AE(DubinsMazeEnv):
                 info['done'] = done
                 return new_obs, 0., done, info
 
-    def set_state(self, state):
+    def set_state(self):
         state = self.observation_space.sample()
         self.state = state
         return self.state_vector()
@@ -123,7 +124,7 @@ class DubinsMazeEnv_AE(DubinsMazeEnv):
         # print("state = ", self.state_vector())
         self.reset_primitive()
         self.set_state()
-        self.task_length = len(self.demo_traj) - self.starting_indx
+        self.task_length = np.random.randint(self.args['min_steps'],self.args['max_steps'])
         self.rollout_steps = 0
         self.traj = []
         self.traj.append(self.state_vector())

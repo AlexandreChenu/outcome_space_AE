@@ -1,13 +1,14 @@
 import sys
 import os
 sys.path.append(os.getcwd())
-from gym_marblemaze.envs.dubins_mazeenv.maze.maze import Maze
+# from gym_marblemaze.envs.dubins_mazeenv.maze.maze import Maze
+from .maze.maze import Maze
 #from maze.maze import Maze
 import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
 from matplotlib.patches import Circle
 import gym
-import gym_marblemaze
+# import gym_marblemaze
 from gym import error, spaces
 from gym.utils import seeding
 import numpy as np
