@@ -1,7 +1,7 @@
 import random
 import math
 import time
-from gym_marblemaze.envs.mazeenv.maze.cell import Cell
+from .cell import Cell
 import numpy as np
 import pylab as pl
 from matplotlib import collections  as mc
