@@ -94,7 +94,8 @@ class DubinsMazeEnv(Maze, gym.Env):
         super(DubinsMazeEnv,self).__init__(args['mazesize'],args['mazesize'],seed=args['random_seed'],standard=args['mazestandard'])
         ms = int(args['mazesize'])
         self.state =  np.array([0.5, 0.5, 1.57])
-
+        self.nb_steps = 0
+        self.max_steps = 50
         self.steps = []
         self.obs_dim = 2
         self.thick = args['wallthickness']
@@ -183,6 +184,7 @@ class DubinsMazeEnv(Maze, gym.Env):
 
     def reset(self):
         self.done = False
+        self.nb_steps = 0
         return self.reset_primitive()
 
     def reset_primitive(self):
@@ -325,11 +327,16 @@ class DubinsMazeEnv(Maze, gym.Env):
     def step(self,action):
         for i in range(self.frame_skip):
             new_state, reward, done, info = self._step(action)
+
+        self.nb_steps += 1
         self.done = info['invalid_action']
-        # if self.done:
-        #     self.reset()
-        #     return new_state, reward, done, info
-        # else:
+        done = self.done
+
+        ## time limit
+        if self.nb_steps >= self.max_steps:
+            self.done = True
+            done = self.done
+
         return new_state, reward, done, info
 
 
