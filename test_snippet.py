@@ -7,6 +7,8 @@ from envs.mazeenv.mazeenv import *
 from matplotlib import collections  as mc
 from matplotlib.patches import Circle
 import gym
+from gym.version import VERSION
+print(VERSION)
 from gym import error, spaces
 from gym.utils import seeding
 import numpy as np
@@ -59,7 +61,7 @@ def sample_trajectories(env, population):
         ob = env.reset()
         while env.done == False:
             action = individual(ob)
-            new_ob = env.step(action)
+            new_ob, reward, done, info = env.step(action)
             trajectory.append(ob)
             ob = new_ob
         trajectories.append(trajectory)

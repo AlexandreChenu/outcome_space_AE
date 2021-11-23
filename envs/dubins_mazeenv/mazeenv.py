@@ -125,7 +125,7 @@ class DubinsMazeEnv(Maze, gym.Env):
 
         self.delta_t = 0.1
 
-        self.frame_skip = 5
+        self.frame_skip = 1
 
 
     def reward_function(self, obs, goal):
@@ -325,7 +325,7 @@ class DubinsMazeEnv(Maze, gym.Env):
         for i in range(self.frame_skip):
             new_state, reward, done, info = self._step(action)
         self.done = info['invalid_action']
-        return new_state
+        return new_state, reward, done, info
 
 
     def setConfig(self,args):
