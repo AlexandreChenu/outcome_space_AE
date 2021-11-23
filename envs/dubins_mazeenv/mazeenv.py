@@ -182,6 +182,7 @@ class DubinsMazeEnv(Maze, gym.Env):
         pass
 
     def reset(self):
+        self.done = False
         return self.reset_primitive()
 
     def reset_primitive(self):
@@ -325,6 +326,10 @@ class DubinsMazeEnv(Maze, gym.Env):
         for i in range(self.frame_skip):
             new_state, reward, done, info = self._step(action)
         self.done = info['invalid_action']
+        # if self.done:
+        #     self.reset()
+        #     return new_state, reward, done, info
+        # else:
         return new_state, reward, done, info
 
 
