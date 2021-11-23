@@ -126,7 +126,7 @@ class DubinsMazeEnv(Maze, gym.Env):
 
         self.delta_t = 0.1
 
-        self.frame_skip = 1
+        self.frame_skip = 4
 
 
     def reward_function(self, obs, goal):
@@ -165,9 +165,9 @@ class DubinsMazeEnv(Maze, gym.Env):
 
         return state
 
-    def state_act(self, action):
+    def state_act(self, action, frameskip):
         r = np.copy(self.state)
-        return self.update_state(r, action, self.delta_t)
+        return self.update_state(r, action, frameskip*self.delta_t)
 
     def state_perturbation(self, mag=1e-5):
         r = np.copy(self.state)
@@ -286,9 +286,10 @@ class DubinsMazeEnv(Maze, gym.Env):
             cur_state = np.copy(self.state)
         if len(action)==2:
             #if not cur_state.act(action).isInBounds(self):
-            if not self.state_isInBounds(self.state_act(action), self):
+            new_state = self.state_act(action, self.frame_skip)
+            if not self.state_isInBounds(new_state, self):
                 return False
-            sa = self.state_act(action)
+            sa = new_state
             #print("cur_state = ", cur_state)
             #print("sa = ", sa)
 
@@ -327,8 +328,9 @@ class DubinsMazeEnv(Maze, gym.Env):
             return False
 
     def step(self,action):
-        for i in range(self.frame_skip):
-            new_state, reward, done, info = self._step(action)
+        #for i in range(self.frame_skip):
+
+        new_state, reward, done, info = self._step(action)
 
         self.nb_steps += 1
         self.done = info['invalid_action']
@@ -354,7 +356,8 @@ class DubinsMazeEnv(Maze, gym.Env):
         if np.array(action).shape==(1,3):
             action = action[0]
 
-        if not self.valid_action(action):
+        valid_action = self.valid_action(action)
+        if not valid_action:
             #DEBUG : invalid actions are simply ignored
             #raise NotImplementedError #todo
             #self.state = self.state_perturbation(1e-9)
@@ -362,10 +365,10 @@ class DubinsMazeEnv(Maze, gym.Env):
             #return self.state.to_list(), self.obstacle_reward, self.wallskill, {'target_reached': False}
             return list(self.state), reward + self.obstacle_reward, self.wallskill, {'target_reached': False, 'invalid_action':True}
 
-        if self.valid_action(action):
+        if valid_action:
             state_before=self.state
             #self.state = self.state.act(action)
-            self.state = self.state_act(action)
+            self.state = self.state_act(action, self.frame_skip)
             self.interacts += 1
             self.steps.append([state_before, action, self.state])
 

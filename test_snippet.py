@@ -41,8 +41,8 @@ from mpl_toolkits.mplot3d import Axes3D
 def plot_demo(env, demo):
 
     fig, ax = plt.subplots()
-    ax.set_xlim(-0.1, 2.1)
-    ax.set_ylim(-0.1, 2.1)
+    ax.set_xlim(-0.1, 4.1)
+    ax.set_ylim(-0.1, 4.1)
     env.draw(ax)
 
     L_X = [state[0] for state in demo]
@@ -78,7 +78,7 @@ if (__name__=='__main__'):
 
     ### create environment
     env = gym.make("DubinsMazeEnv-v0", args= {
-            'mazesize':2,
+            'mazesize':4,
             'random_seed':0,
             'mazestandard':False,
             'wallthickness':0.1,
