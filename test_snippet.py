@@ -57,6 +57,7 @@ def sample_trajectories(env, population):
     trajectories = []
 
     for individual in population:
+        print("individual = ", individual)
         trajectory = []
         ob = env.reset()
         while env.done == False:
@@ -84,13 +85,17 @@ if (__name__=='__main__'):
             'wallskill':True,
             'targetkills':True})
     ## remove walls for now
-    env.empty_grid()
+    # env.empty_grid()
 
     print("env = ", env)
 
+
     ## fake population
-    population = [random_agent]
+    pop_size = 10
+    population = [random_agent for i in range(pop_size)]
 
     trajs = sample_trajectories(env, population)
 
-    plot_demo(env, trajs[0])
+    for traj in trajs:
+        print("len(traj) = ", len(traj))
+        plot_demo(env, traj)
