@@ -190,7 +190,8 @@ class DubinsMazeEnv(Maze, gym.Env):
     def reset_primitive(self):
         ##random orientation between [0,pi/2]
         #orientation = np.random.uniform(0., 2*np.pi)
-        orientation = np.random.uniform(0., np.pi/3)
+        #orientation = np.random.uniform(0., np.pi/3)
+        orientation = np.pi/4
         ## starting x,y = (1.,1.)
         self.state = np.array([0.25, 0.25, orientation])
         return self.state
