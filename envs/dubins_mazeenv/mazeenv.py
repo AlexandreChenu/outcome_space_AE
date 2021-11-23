@@ -1,14 +1,12 @@
 import sys
 import os
 sys.path.append(os.getcwd())
-# from gym_marblemaze.envs.dubins_mazeenv.maze.maze import Maze
 from .maze.maze import Maze
 #from maze.maze import Maze
 import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
 from matplotlib.patches import Circle
 import gym
-# import gym_marblemaze
 from gym import error, spaces
 from gym.utils import seeding
 import numpy as np
@@ -60,9 +58,9 @@ class State(object):
     def __str__(self):
         return "({:10.2f},{:10.2f})".format(self.x,self.y)
 
-MAX_STEER = np.pi/3
-MAX_SPEED = 1.
-MIN_SPEED = 0.
+MAX_STEER = np.pi#np.pi/3
+MAX_SPEED = 0.3#1.
+MIN_SPEED = -0.01#0.
 THRESHOLD_DISTANCE_2_GOAL = 0.02
 MAX_X = 10.
 MAX_Y = 10.
@@ -90,11 +88,13 @@ class DubinsMazeEnv(Maze, gym.Env):
         self.allsteps = []
         self.lines = None
         self.interacts = 0
+        self.done = False
 
     def setup(self,args):
         super(DubinsMazeEnv,self).__init__(args['mazesize'],args['mazesize'],seed=args['random_seed'],standard=args['mazestandard'])
         ms = int(args['mazesize'])
         self.state =  np.array([0.5, 0.5, 1.57])
+
         self.steps = []
         self.obs_dim = 2
         self.thick = args['wallthickness']
@@ -140,7 +140,8 @@ class DubinsMazeEnv(Maze, gym.Env):
     def update_state(self, state, a, DT):
         # print("Updating state")
 
-        throttle = a[0]
+        #throttle = a[0]
+        throttle = 1.
         steer = a[1]
 
         #print("state = ", state)
@@ -184,12 +185,15 @@ class DubinsMazeEnv(Maze, gym.Env):
         return self.reset_primitive()
 
     def reset_primitive(self):
-        self.state = np.array([0.5, 0.5, 0.])
-
+        ##random orientation between [0,pi/2]
+        orientation = np.random.uniform(0., 2*np.pi)
+        ## starting x,y = (1.,1.)
+        self.state = np.array([1., 1., orientation])
         return self.state
 
     def set_state(self,state):
-        self.state =  np.array([0.5, 0.5, 0.])
+        self.state =  state
+        return self.state
 
     def close(self):
         pass
@@ -320,7 +324,9 @@ class DubinsMazeEnv(Maze, gym.Env):
     def step(self,action):
         for i in range(self.frame_skip):
             new_state, reward, done, info = self._step(action)
-        return new_state, reward, done, info
+        self.done = info['invalid_action']
+        return new_state
+
 
     def setConfig(self,args):
         self.alive_bonus = float(args['alivebonus'])
@@ -340,7 +346,7 @@ class DubinsMazeEnv(Maze, gym.Env):
             #self.state = self.state_perturbation(1e-9)
             reward = self.reward_function(self.state, self.goal)
             #return self.state.to_list(), self.obstacle_reward, self.wallskill, {'target_reached': False}
-            return list(self.state), reward + self.obstacle_reward, self.wallskill, {'target_reached': False}
+            return list(self.state), reward + self.obstacle_reward, self.wallskill, {'target_reached': False, 'invalid_action':True}
 
         if self.valid_action(action):
             state_before=self.state
@@ -360,7 +366,7 @@ class DubinsMazeEnv(Maze, gym.Env):
         done = False # env never terminates
 
         #info = {'target_reached': dst<.2}
-        info = {}
+        info = {'invalid_action': False}
 
         #return self.state.to_list(),reward,done,info
         return list(self.state),reward,done,info
